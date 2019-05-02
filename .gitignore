@@ -1,12 +1,6 @@
 # Prerequisites
 *.d
 
-# User-specific files
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
 # Compiled Object files
 *.slo
 *.lo
@@ -37,17 +31,10 @@
 *.out
 *.app
 
-# Visual Studio 2015 cache/options directory
-.vs/
-
-# Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
+\Debug
+/Console-Menu/Debug
+/Hello World/x64/Debug
+/Hello World/Debug
+/x64/Debug
+/.vs/Learning C++/v16
+/3 - Guess Number/x64/Debug
