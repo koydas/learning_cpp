@@ -13,7 +13,8 @@ const int width = 112;
 enum tileType { none, player, ball };
 
 COORD playerCoord;
-
+COORD ballCoord;
+bool shooted = false;
 tileType tilemap[height][width] = {
 	{none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none},
 	{none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none, none},
@@ -53,6 +54,15 @@ int main() {
 		tilemap[playerCoord.Y][playerCoord.X] = player;
 
 		input();
+
+		if (shooted) {
+			tilemap[ballCoord.Y][ballCoord.X] = none;
+			ballCoord.Y -= 1;
+			tilemap[ballCoord.Y][ballCoord.X] = ball;
+		}
+		
+
+
 		draw();
 	}
 	
@@ -79,7 +89,9 @@ void input() {
 				playerCoord.X++;
 				break;
 			case ' ':
-				tilemap[playerCoord.Y - 1][playerCoord.X] = ball;
+				ballCoord.X = playerCoord.X;
+				ballCoord.Y = playerCoord.Y - 1;
+				shooted = true;
 				break;
 		}
 	}
