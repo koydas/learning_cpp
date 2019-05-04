@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <windows.h>
+#include <future>
 
 using namespace std;
 
@@ -38,26 +39,28 @@ int score = 0;
 int balls = 3;
 
 int main() {
+	future<void> f = async(updateBallPosition);
+
 	while (!quit) {
-		update();
+		if (balls <= 0) {
+			quit = true;
+		}
+
+		if (ballFreezed) {
+			ballX = paddleX + 1;
+			ballY = 5;
+		}
+
+		input();
+		clearMovingElements();
+		updatePaddlePosition();
+
+		tilemap[ballY][ballX] = ball;
+
 		draw();
 	}
 
 	return 0;
-}
-
-void update() {
-	if (balls <= 0) {
-		quit = true;
-	}
-
-	input();
-
-	clearMovingElements();
-	updatePaddlePosition();
-	updateBallPosition();
-
-	Sleep(100);
 }
 
 void draw() {
@@ -98,76 +101,80 @@ void draw() {
 }
 
 void input() {
-	if (_kbhit()) {
-		switch (_getch()) {
-		case 27: // Escape
-			quit = true;
-			break;
-		case 'z': // Left Arrow
-			if (paddleX > 1)
-				paddleX--;
-			break;
-		case 'x': // Right Arrow
-			if (paddleX+4 < width)
-				paddleX++;
-			break;
-		case ' ':
-			if (ballFreezed) {
-				ballVelocityX = 1;
-				ballVelocityY = -1;
+		if (_kbhit()) {
+			switch (_getch()) {
+			case 27: // Escape
+				quit = true;
+				break;
+			case 'z': // Left Arrow
+				if (paddleX > 1)
+					paddleX--;
+				break;
+			case 'x': // Right Arrow
+				if (paddleX + 4 < width)
+					paddleX++;
+				break;
+			case ' ':
+				if (ballFreezed) {
+					ballVelocityX = 1;
+					ballVelocityY = -1;
 
-				ballFreezed = false;
+					ballFreezed = false;
+				}
+				break;
 			}
-			break;
 		}
 	}
-}
+
 
 void clearMovingElements() {
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			if (tilemap[i][j] == paddle || tilemap[i][j] == ball) {
-				tilemap[i][j] = none;
+	tilemap[ballY][ballX] = none;
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				if (tilemap[i][j] == paddle || tilemap[i][j] == ball) {
+					tilemap[i][j] = none;
+				}
 			}
 		}
 	}
-}
+
 
 void updatePaddlePosition() {
-	tilemap[6][paddleX] = paddle;
-	tilemap[6][paddleX + 1] = paddle;
-	tilemap[6][paddleX + 2] = paddle;
-}
+
+		tilemap[6][paddleX] = paddle;
+		tilemap[6][paddleX + 1] = paddle;
+		tilemap[6][paddleX + 2] = paddle;
+	}
+
 
 void updateBallPosition() {
-	int expectedY = ballY + ballVelocityY;
-	int expectedX = ballX + ballVelocityX;
-	
-	if (tilemap[expectedY][ballX] == dead) {
-		ballFreezed = true;
-		balls--;
-	}
-	
-	if (tilemap[expectedY][ballX] != none) {
-		ballVelocityY *= -1;
-	}
-	if (tilemap[ballY][expectedX] != none) {
-		ballVelocityX *= -1;
-	}
-	
-	if (tilemap[expectedY][expectedX] == brick) {
-		score += 100;
-		tilemap[expectedY][expectedX] = none;
-	}
+	while (!quit) {
+		int expectedY = ballY + ballVelocityY;
+		int expectedX = ballX + ballVelocityX;
 
-	if (ballFreezed) {
-		ballX = paddleX + 1;
-		ballY = 5;
-	}
-	else {
-		ballX += ballVelocityX;
-		ballY += ballVelocityY;
-	}
+		if (tilemap[expectedY][ballX] == dead) {
+			ballFreezed = true;
+			balls--;
+		}
 
-	tilemap[ballY][ballX] = ball;
+		if (tilemap[expectedY][ballX] != none) {
+			ballVelocityY *= -1;
+		}
+		if (tilemap[ballY][expectedX] != none) {
+			ballVelocityX *= -1;
+		}
+
+		if (tilemap[expectedY][expectedX] == brick) {
+			score += 100;
+			tilemap[expectedY][expectedX] = none;
+		}
+
+		
+		if(!ballFreezed) {
+			ballX += ballVelocityX;
+			ballY += ballVelocityY;
+		}
+
+		Sleep(1000);
+	}
 }
